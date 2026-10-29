@@ -66,6 +66,19 @@ node "$CS" status --project "<PROJECT>"
 
 `CS` is the absolute script path, `<PROJECT>` an existing absolute project directory, and `<id>` comes from `list.skills[].id`. Replace placeholders before running. Confirm `mounted`, then refresh Codex's catalog or start a new project session. Load the selected instructions when using the skill.
 
+## On-demand references
+
+Keep SKILL.md compact. Read only the reference required for the current operation, not the whole directory.
+
+| Document | Contents |
+| --- | --- |
+| [references/setup.md](references/setup.md) | Setup and configuration |
+| [references/commands.md](references/commands.md) | Commands and layout |
+| [references/selection.md](references/selection.md) | Skill selection |
+| [references/interaction.md](references/interaction.md) | Question tools |
+| [references/operations.md](references/operations.md) | Status, relocation and troubleshooting |
+| [references/output.md](references/output.md) | JSON output contract |
+
 ## Directory layout
 
 ```text
@@ -75,6 +88,7 @@ node "$CS" status --project "<PROJECT>"
 │       ├── SKILL.md                     # Agent workflow and constraints
 │       ├── README.md                    # English user guide
 │       ├── README.zh-CN.md               # Chinese user guide
+│       ├── references/                  # On-demand references; see index above
 │       └── scripts/
 │           ├── code-skills.mjs          # CLI and importable functions
 │           └── code-skills.test.mjs     # Node.js built-in tests
@@ -186,12 +200,22 @@ Example `list` output:
 ## Agent workflow
 
 1. Confirm the project and inspect stack manifests, README, and relevant directories.
-2. Run `list` and usually select one to three skills based on descriptions and evidence. Report when none match.
+2. Evaluate the entire library from `list`. Project setup includes all compatible frontend skills covering framework development, visual design, and UI/accessibility review. Individual tasks select what they need. There is no hard one-to-three limit and no default mount-all.
 3. Run `status`, mount what is needed, and honor project confirmation requirements.
 4. Verify `mounted`, then read each selected `SKILL.md` before applying its guidance.
-5. Report reasons and results; offer adjustments once on first setup or stack changes.
+5. After verified first setup, requested reconfiguration, or stack changes, call an available question component. Include every library id/name, state, and recommendation reason in the question. Offer the AI-recommended additions, custom changes, and keeping the current set. Apply explicit submitted changes and verify again.
 
 Link creation, instruction loading, and Codex catalog refresh are separate states to verify. General Q&A, documents, and image work do not require mounting code skills.
+
+### Question components and selection examples
+
+Use a question tool permitted in the current mode: `request_user_input`, `ask_user_question`, or an equivalent. If a synchronous tool is unavailable, prefer `request_user_input_async`. Follow actual schemas and mode restrictions. If no legal component works, explain the limitation and fall back to the same choices in text.
+
+Use this protocol for first-use path confirmation too. Tabs, Submit, keyboard navigation, multiple selection, and custom text fields are rendered by the host. Use a recommendation bundle when only single selection is supported, and reuse built-in free-text inputs instead of duplicating an Other option.
+
+For a Vben frontend project, mount `vben`, `frontend-design`, and `web-design-guidelines` when available and compatible. Recommend general development skills as optional additions; do not include backend-specific skills without evidence. Mounting a review skill does not immediately initiate its review workflow.
+
+Build questions from the actual full library. Example choices are adding `ponytail` (AI recommended), custom additions/removals, and keeping the current set. If the tool provides built-in custom input, use it. See [interaction.md](references/interaction.md) for the complete agent protocol.
 
 ## Status and relocation
 
@@ -254,4 +278,5 @@ Tests use isolated system-temporary fixtures and clean them up. Coverage include
 Run `unmount --project "<PROJECT>" --all` for each project before removing the entry directory. Delete the user config and library separately only when no longer needed. **The library contains source files; removing the tool does not require deleting it.** Git-local exclude rules remain; remove the two rules manually if desired.
 
 Third-party skills retain their own licenses. This directory has no tool LICENSE file; maintainers must confirm licensing and add it before public distribution. Third-party licenses do not establish the license of this tool.
+
 

@@ -66,6 +66,19 @@ node "$CS" status --project "<PROJECT>"
 
 `CS` 是脚本绝对路径，`<PROJECT>` 是已存在的项目绝对路径，`<id>` 取自 `list.skills[].id`。替换占位符后执行。确认状态为 `mounted`，再刷新 Codex 清单或新开项目会话；完整指引仍需按任务加载。
 
+## 按需加载参考文档
+
+`SKILL.md` 保持精简；仅在操作命中条件时读取对应文档，不默认加载整个目录。
+
+| Document | Contents |
+| --- | --- |
+| [references/setup.md](references/setup.md) | 初始化与配置 |
+| [references/commands.md](references/commands.md) | 命令与目录 |
+| [references/selection.md](references/selection.md) | 技能选择 |
+| [references/interaction.md](references/interaction.md) | 交互提问 |
+| [references/operations.md](references/operations.md) | 状态、迁移与排错 |
+| [references/output.md](references/output.md) | JSON 输出约定 |
+
 ## 目录结构
 
 ```text
@@ -75,6 +88,7 @@ node "$CS" status --project "<PROJECT>"
 │       ├── SKILL.md                     # 智能体入口与操作约束
 │       ├── README.md                    # 英文使用手册
 │       ├── README.zh-CN.md               # 中文使用手册
+│       ├── references/                  # 按需加载文档，见上方索引
 │       └── scripts/
 │           ├── code-skills.mjs          # CLI 与可导入函数
 │           └── code-skills.test.mjs     # Node.js 内置测试
@@ -186,12 +200,22 @@ node "$CS" status --project "<PROJECT>"
 ## 智能体使用流程
 
 1. 确认目标项目，读取技术栈清单、README 和相关目录。
-2. 运行 `list`，根据描述和项目证据通常选择 1–3 个技能；没有匹配项时说明情况。
+2. 运行 `list` 并逐项评估全库。项目初始化覆盖所有适配且不冲突的前端技能，包括框架开发、界面设计和 UI/可访问性检查；单次任务按当前需要选择。不设 1–3 个硬上限，也不默认挂载整个库。
 3. 运行 `status`，仅对需要的技能执行 `mount`；遵守项目确认要求。
 4. 再检查 `mounted`，读取所选技能的 `SKILL.md` 后开展任务。
-5. 报告理由和结果；首次初始化或技术栈变化时一次性给出可调整建议。
+5. 首次项目初始化、重新配置或技术栈变化时，验证挂载后必须调用可用交互组件：问题正文列全库技能名、状态和推荐理由；选项为增加 AI 推荐组合、自定义增删、保持当前组合。工具内置自由输入时复用该入口。提交后执行明确的增删并再次验证。
 
 链接创建、指引读取和 Codex 清单刷新分别核实。纯问答、文档和图片任务无需挂载。
+
+### 交互组件与选择示例
+
+优先使用当前模式允许的 `request_user_input`、`ask_user_question` 或等价组件；同步工具不可用时使用 `request_user_input_async`。必须遵守工具模式和参数限制，不通过提示词强制切换模式或虚构字段。全部组件不可用时说明限制并降级文字提问。
+
+初始化路径也使用此协议：推荐默认绝对路径，提供自定义输入，等用户确认后初始化。标签页、Submit、键盘导航和多选能力由宿主提供；仅支持单选时将推荐增补作为组合选项。
+
+例如 Vben 前端项目，当前库存在相应技能时，默认挂载 `vben`、`frontend-design`、`web-design-guidelines`。通用开发技能可作为增补推荐；后端专用技能不自动加入。挂载多个技能不等于立即执行所有技能的流程。
+
+调整问题必须动态列出全库的 id/名称、状态与推荐理由，而非固定复制示例名单。示例选项为“增加 ponytail（AI 推荐）”“自定义增删”“保持当前组合”；内置自由输入时不重复增加自定义选项。原生工具的字段示例及完整规则以 [interaction.md](references/interaction.md) 为准。
 
 ## 状态与迁移
 
@@ -254,4 +278,5 @@ node --test "<BASE>/scripts/code-skills.test.mjs"
 先逐项目执行 `unmount --project "<PROJECT>" --all`，再删除入口目录。确认不需要后单独删除用户配置和技能库；**库包含技能源文件，删除入口不要求删除库**。工具保留 Git 本地 exclude 规则，必要时手动删除上述两条规则。
 
 第三方技能保留各自许可。本目录未附工具本身的 LICENSE；对外发布前由维护者确认授权并补齐，第三方许可不代表本工具许可。
+
 
