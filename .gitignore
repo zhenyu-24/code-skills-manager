@@ -1,0 +1,7 @@
+# local runtime artifacts
+.code-skills/
+.agents/
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
